@@ -71,7 +71,7 @@ pub struct Tmp117<T, E> {
 impl<T, E> Tmp117<T, E>
 where
     T: I2c<SevenBitAddress, Error = E>,
-    E: embedded_hal::i2c::Error + Copy,
+    E: embedded_hal::i2c::Error,
 {
     /// Create a new tmp117 from a i2c bus
     pub fn new(i2c: T, addr: u8) -> Self {
