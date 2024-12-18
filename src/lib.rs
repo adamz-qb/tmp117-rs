@@ -64,25 +64,25 @@ pub struct Id {
 
 /// The TMP117 driver. Note that the alert pin is not used in this driver,
 /// see the async implementation if you want the driver to use the alert pin in the drive
-pub struct Tmp117<T, E> {
-    tmp_ll: Tmp117LL<T, E>,
+pub struct Tmp117<T> {
+    tmp_ll: Tmp117LL<T>,
 }
 
-impl<T, E> Tmp117<T, E>
+impl<T, E> Tmp117<T>
 where
     T: I2c<SevenBitAddress, Error = E>,
     E: embedded_hal::i2c::Error,
 {
     /// Create a new tmp117 from a i2c bus
     pub fn new(i2c: T, addr: u8) -> Self {
-        Tmp117::<T, E> {
+        Tmp117::<T> {
             tmp_ll: Tmp117LL::new(i2c, addr),
         }
     }
 
     /// Create a new tmp117 from a low level tmp117 driver
-    pub fn new_from_ll(tmp_ll: Tmp117LL<T, E>) -> Self {
-        Tmp117::<T, E> { tmp_ll }
+    pub fn new_from_ll(tmp_ll: Tmp117LL<T>) -> Self {
+        Tmp117::<T> { tmp_ll }
     }
 
     /// Returns the ID of the device
@@ -149,7 +149,7 @@ where
     fn set_continuous(
         &mut self,
         config: ContinuousConfig,
-    ) -> Result<ContinuousHandler<'_, T, E>, Error<E>> {
+    ) -> Result<ContinuousHandler<'_, T>, Error<E>> {
         if let Some(val) = config.high {
             let high: HighLimit = ((val / CELCIUS_CONVERSION) as u16).into();
             self.tmp_ll.write(high)?;
@@ -238,7 +238,7 @@ where
     /// and finally the device is shutdown
     pub fn continuous<F>(&mut self, config: ContinuousConfig, f: F) -> Result<(), Error<E>>
     where
-        F: FnOnce(ContinuousHandler<'_, T, E>) -> Result<(), Error<E>>,
+        F: FnOnce(ContinuousHandler<'_, T>) -> Result<(), Error<E>>,
     {
         let handler = self.set_continuous(config)?;
         f(handler)?;
@@ -247,11 +247,11 @@ where
 }
 
 /// Handler for the continuous mode
-pub struct ContinuousHandler<'a, T, E> {
-    tmp117: &'a mut Tmp117<T, E>,
+pub struct ContinuousHandler<'a, T> {
+    tmp117: &'a mut Tmp117<T>,
 }
 
-impl<'a, T, E> ContinuousHandler<'a, T, E>
+impl<'a, T, E> ContinuousHandler<'a, T>
 where
     T: I2c<SevenBitAddress, Error = E>,
     E: embedded_hal::i2c::Error + Copy,
