@@ -254,7 +254,7 @@ pub struct ContinuousHandler<'a, T> {
 impl<'a, T, E> ContinuousHandler<'a, T>
 where
     T: I2c<SevenBitAddress, Error = E>,
-    E: embedded_hal::i2c::Error + Copy,
+    E: embedded_hal::i2c::Error,
 {
     /// Read the temperature in celsius, return an error if the value of the temperature is not ready
     pub fn read_temp(&mut self) -> Result<f32, Error<E>> {
